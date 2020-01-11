@@ -16,6 +16,7 @@ class Population {
         //Create a first population pool
         for (int i = 0; i < populationSize; i++) {
             individuals[i] = new Individual(geneLength);
+            individuals[i].calcFitness();
         }
     }
 

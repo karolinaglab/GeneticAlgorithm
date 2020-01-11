@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 //Main class
@@ -41,15 +44,12 @@ public class SimpleDemoGA {
             demo.selection();
 
             //Do crossover
-            demo.crossover();
+            demo.parentSelection();
 
             //Do mutation under a random probability
             if (rn.nextInt()%7 < 5) {
                 demo.mutation();
             }
-
-            //Add fittest offspring to population
-            demo.addFittestOffspring();
 
             //Calculate new fitness value
             demo.population.calculateFitness();
@@ -104,11 +104,33 @@ public class SimpleDemoGA {
             }
         }
         population.setIndividuals(newIndividuals);
+    }
 
+    private void parentSelection() {
+        Random rn = new Random();
+        List<Individual> individuals = Arrays.asList(population.getIndividuals());
+        List<Individual> newIndividuals = new ArrayList<>();
+        int i = 0;
+        while (individuals.size() > 0) {
+            Individual individual1 = individuals.get(i);
+            int index = rn.nextInt(individuals.size() - 2) + 1;
+            Individual individual2 = individuals.get(index);
+            List<Individual> children = crossover(individual1, individual2);
+            newIndividuals.addAll(children);
+            individuals.remove(individual1);
+            individuals.remove(individual2);
+
+            if(individuals.size() == 1) {
+                Individual lastIndividual = individuals.get(0);
+                individuals.remove(lastIndividual);
+                newIndividuals.add(lastIndividual);
+            }
+        }
+        population.setIndividuals((Individual[]) newIndividuals.toArray());
     }
 
     //Crossover
-    private void crossover() {
+    private List<Individual> crossover(Individual individual1, Individual individual2) {
         Random rn = new Random();
 
         //Select a random crossover point
@@ -116,12 +138,11 @@ public class SimpleDemoGA {
 
         //Swap values among parents
         for (int i = 0; i < crossOverPoint; i++) {
-            int temp = fittest.getGenes()[i];
-            fittest.getGenes()[i] = secondFittest.getGenes()[i];
-            secondFittest.getGenes()[i] = temp;
-
+            int temp = individual1.getGenes()[i];
+            individual1.getGenes()[i] = individual2.getGenes()[i];
+            individual2.getGenes()[i] = temp;
         }
-
+        return Arrays.asList(individual1, individual2);
     }
 
     //Mutation
