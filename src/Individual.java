@@ -3,7 +3,7 @@ import java.util.Random;
 //Individual class
 class Individual {
 
-    private int fitness;
+    private double fitness;
     private int[] genes;
     private int geneLength;
 
@@ -22,21 +22,17 @@ class Individual {
 
     //Calculate fitness
     public void calcFitness() {
-
-        this.fitness = 0;
+        StringBuilder binary = new StringBuilder();
         for (int i = 0; i < geneLength; i++) {
-            if (this.genes[i] == 1) {
-                ++this.fitness;
-            }
+            binary.append(genes[i]);
         }
+        String binaryString = binary.toString();
+        int decimal = Integer.parseInt(binaryString, 2);
+        fitness = fitFunction(decimal);
     }
 
-    public int getFitness() {
-        return fitness;
-    }
-
-    public void setFitness(int fitness) {
-        this.fitness = fitness;
+    private double fitFunction(int decimal) {
+        return Math.pow(decimal, 2) - 4;
     }
 
     public int[] getGenes() {
@@ -53,5 +49,14 @@ class Individual {
 
     public void setGeneLength(int geneLength) {
         this.geneLength = geneLength;
+    }
+
+
+    public double getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(double fitness) {
+        this.fitness = fitness;
     }
 }
