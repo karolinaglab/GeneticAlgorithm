@@ -6,6 +6,7 @@ class Individual {
     private double fitness;
     private int[] genes;
     private int geneLength;
+    private double selectionProbability;
 
     public Individual(int geneLength) {
 
@@ -49,6 +50,14 @@ class Individual {
 
     public void setGeneLength(int geneLength) {
         this.geneLength = geneLength;
+    }
+
+    public double getSelectionProbability() {
+        return selectionProbability;
+    }
+
+    public void setSelectionProbability(double selectionProbability) {
+        this.selectionProbability = selectionProbability;
     }
 
 

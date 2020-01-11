@@ -4,8 +4,7 @@ import java.util.Random;
 public class SimpleDemoGA {
 
     private Population population;
-    private Individual fittest;
-    private Individual secondFittest;
+
     private int generationCount;
     private int numberOfGenes = 5;
     private int numberOfIndividuals = 5;
@@ -28,9 +27,6 @@ public class SimpleDemoGA {
 
         //Initialize population
         demo.population = new Population(demo.numberOfIndividuals, demo.numberOfGenes);
-
-        //Calculate fitness of each individual
-        demo.population.calculateFitness();
 
         System.out.println("Generation: " + demo.generationCount + " Fittest: " + demo.population.getFittest());
 
@@ -84,12 +80,31 @@ public class SimpleDemoGA {
 
     //Selection
     private void selection() {
+        double totalFitness = 0;
+        for (int i = 0; i < numberOfIndividuals; i++) {
+            totalFitness += population.getIndividual(i).getFitness();
+        }
 
-        //Select the most fittest individual
-        fittest = population.selectFittest();
+        for (int i = 0; i < numberOfIndividuals; i++) {
+            double selectionProbability = population.getIndividual(i).getFitness() / totalFitness;
+            population.getIndividual(i).setSelectionProbability(selectionProbability);
+        }
 
-        //Select the second most fittest individual
-        secondFittest = population.selectSecondFittest();
+        Individual[] newIndividuals = new Individual[numberOfIndividuals];
+
+        for (int i = 0; i < numberOfIndividuals; i++) {
+            double temporarySum = 0;
+            for (int j = 0; j < numberOfIndividuals; j++) {
+                temporarySum += population.getIndividual(j).getSelectionProbability();
+                Random rn = new Random();
+                double chance = rn.nextDouble();
+                if (chance <= temporarySum) {
+                    newIndividuals[i] = population.getIndividual(j);
+                }
+            }
+        }
+        population.setIndividuals(newIndividuals);
+
     }
 
     //Crossover
@@ -132,28 +147,8 @@ public class SimpleDemoGA {
         }
     }
 
-    //Get fittest offspring
-    private Individual getFittestOffspring() {
-        if (fittest.getFitness() > secondFittest.getFitness()) {
-            return fittest;
-        }
-        return secondFittest;
-    }
 
 
-    //Replace least fittest individual from most fittest offspring
-    private void addFittestOffspring() {
-
-        //Update fitness values of offspring
-        fittest.calcFitness();
-        secondFittest.calcFitness();
-
-        //Get index of least fit individual
-        int leastFittestIndex = population.getLeastFittestIndex();
-
-        //Replace least fittest individual from most fittest offspring
-        population.getIndividuals()[leastFittestIndex] = getFittestOffspring();
-    }
 
     public void printIndividuals() {
         for (int i = 0; i < numberOfIndividuals; i++) {
