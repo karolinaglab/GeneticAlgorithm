@@ -24,11 +24,12 @@ class Individual {
     //Calculate fitness
     public void calcFitness() {
         StringBuilder binary = new StringBuilder();
-        for (int i = 0; i < geneLength; i++) {
+        int plus = genes[0] == 0 ? -1 : 1;
+        for (int i = 1; i < geneLength; i++) {
             binary.append(genes[i]);
         }
         String binaryString = binary.toString();
-        int decimal = Integer.parseInt(binaryString, 2);
+        int decimal = plus * Integer.parseInt(binaryString, 2);
         fitness = fitFunction(decimal);
     }
 
