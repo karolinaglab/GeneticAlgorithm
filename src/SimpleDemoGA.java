@@ -59,7 +59,7 @@ public class SimpleDemoGA {
             demo.printIndividuals();
             System.out.print("Fittest offspring: ");
             for (int i = 0; i < 5; i++) {
-                System.out.print(demo.getFittestOffspring().getGenes()[i]);
+                System.out.print(demo.population.getFittestIndividual().getGenes()[i]);
             }
             System.out.println();
             System.out.println();

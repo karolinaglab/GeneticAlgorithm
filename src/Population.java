@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Optional;
+
 //Population class
 class Population {
 
@@ -20,6 +24,17 @@ class Population {
         }
     }
 
+    public void calculateFitness() {
+        for (Individual individual : individuals) {
+            individual.calcFitness();
+        }
+    }
+
+    public Individual getFittestIndividual() {
+        Optional<Individual> max = Arrays.stream(individuals)
+                .max(Comparator.comparingDouble(Individual::getFitness));
+        return max.orElse(null);
+    }
 
     public int getPopulationSize() {
         return populationSize;
