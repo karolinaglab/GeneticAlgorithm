@@ -1,5 +1,7 @@
 import java.util.Random;
 
+import static java.lang.Integer.parseInt;
+
 //Individual class
 class Individual {
 
@@ -23,17 +25,23 @@ class Individual {
 
     //Calculate fitness
     public void calcFitness() {
-        StringBuilder binary = new StringBuilder();
+        StringBuilder integerNumberBuilder = new StringBuilder();
+        StringBuilder fractionalNumberBuilder = new StringBuilder();
         int plus = genes[0] == 0 ? -1 : 1;
-        for (int i = 1; i < geneLength; i++) {
-            binary.append(genes[i]);
+        for (int i = 1; i < geneLength - 2; i++) {
+            integerNumberBuilder.append(genes[i]);
         }
-        String binaryString = binary.toString();
-        int decimal = plus * Integer.parseInt(binaryString, 2);
+        for (int i = geneLength - 2; i < geneLength; i++) {
+            fractionalNumberBuilder.append(genes[i]);
+        }
+        String integerNumber = integerNumberBuilder.toString();
+        String fractionalNumber = fractionalNumberBuilder.toString();
+        double decimal = plus * parseInt(integerNumber, 2);
+        decimal += parseInt(fractionalNumber, 2) / 100;
         fitness = fitFunction(decimal);
     }
 
-    private double fitFunction(int decimal) {
+    private double fitFunction(double decimal) {
         return Math.pow(decimal, 2) - 4;
     }
 
