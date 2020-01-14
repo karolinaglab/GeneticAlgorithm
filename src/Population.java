@@ -1,26 +1,23 @@
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 //Population class
 class Population {
 
     private int populationSize;
     private int geneLength;
-    private Individual[] individuals;
+    private List<Individual> individuals;
     private int fittest = 0;
 
     //Initialize population
     public Population(int populationSize, int geneLength) {
-        super();
         this.populationSize = populationSize;
         this.geneLength = geneLength;
-        this.individuals = new Individual[populationSize];
+        this.individuals = new ArrayList<>();
 
         //Create a first population pool
         for (int i = 0; i < populationSize; i++) {
-            individuals[i] = new Individual(geneLength);
-            individuals[i].calcFitness();
+            individuals.add(new Individual(geneLength));
+            individuals.get(i).calcFitness();
         }
     }
 
@@ -31,9 +28,15 @@ class Population {
     }
 
     public Individual getFittestIndividual() {
-        Optional<Individual> max = Arrays.stream(individuals)
+        Optional<Individual> max = individuals.stream()
                 .max(Comparator.comparingDouble(Individual::getFitness));
         return max.orElse(null);
+    }
+
+    public Individual getLeastFittestIndividual() {
+        Optional<Individual> min = individuals.stream()
+                .min(Comparator.comparingDouble(Individual::getFitness));
+        return min.orElse(null);
     }
 
     public int getPopulationSize() {
@@ -52,11 +55,11 @@ class Population {
         this.geneLength = geneLength;
     }
 
-    public Individual[] getIndividuals() {
+    public List<Individual> getIndividuals() {
         return individuals;
     }
 
-    public void setIndividuals(Individual[] individuals) {
+    public void setIndividuals(List<Individual> individuals) {
         this.individuals = individuals;
     }
 
@@ -69,6 +72,6 @@ class Population {
     }
 
     public Individual getIndividual(int index) {
-        return individuals[index];
+        return individuals.get(index);
     }
 }

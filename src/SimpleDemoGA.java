@@ -9,8 +9,8 @@ public class SimpleDemoGA {
     private Population population;
 
     private int generationCount;
-    private int numberOfGenes = 5;
-    private int numberOfIndividuals = 5;
+    private int numberOfGenes = 16;
+    private int numberOfIndividuals = 6;
 
     public SimpleDemoGA() {
         this.population = new Population(this.numberOfIndividuals, this.numberOfGenes);
@@ -22,6 +22,8 @@ public class SimpleDemoGA {
 
         Random rn = new Random();
 
+        //f(x) = -0.3x^4 + 36x^3 - 30x^2 -45x -1320
+        //max = 6 314 158 at x≈89.436
         //Number of genes each individual has
        // numberOfGenes = 5;
         //Number of individuals
@@ -31,13 +33,14 @@ public class SimpleDemoGA {
         //Initialize population
         demo.population = new Population(demo.numberOfIndividuals, demo.numberOfGenes);
 
-        System.out.println("Generation: " + demo.generationCount + " Fittest: " + demo.population.getFittest());
+        Individual fittestIndividual = demo.population.getFittestIndividual();
+        System.out.println("Generation: " + demo.generationCount + " Fittest: " + fittestIndividual.getFitness());
 
         demo.printIndividuals();
         System.out.println();
 
         //While population gets an individual with maximum fitness
-        while (demo.population.getFittest() < 5) {
+        while (fittestIndividual.getFitness() < 6310000) {
             ++demo.generationCount;
 
             //Do selection
@@ -47,19 +50,22 @@ public class SimpleDemoGA {
             demo.parentSelection();
 
             //Do mutation under a random probability
-            if (rn.nextInt()%7 < 5) {
-                demo.mutation();
+            for (Individual individual : demo.population.getIndividuals()){
+                if (rn.nextInt()%7 < 5) {
+                    demo.mutation(individual);
+                }
             }
 
             //Calculate new fitness value
             demo.population.calculateFitness();
+            fittestIndividual = demo.population.getFittestIndividual();
 
-            System.out.println("Generation: " + demo.generationCount + " Fittest: " + demo.population.getFittest());
+            System.out.println("Generation: " + demo.generationCount + " Fittest: " + fittestIndividual.getFitness());
 
             demo.printIndividuals();
             System.out.print("Fittest offspring: ");
-            for (int i = 0; i < 5; i++) {
-                System.out.print(demo.population.getFittestIndividual().getGenes()[i]);
+            for (int i = 0; i <16; i++) {
+                System.out.print(fittestIndividual.getGenes()[i]);
             }
             System.out.println();
             System.out.println();
@@ -67,10 +73,10 @@ public class SimpleDemoGA {
         }
 
         System.out.println("\nSolution found in generation " + demo.generationCount);
-        System.out.println("Fitness: "+demo.population.selectFittest().getFitness());
+        System.out.println("Fitness: "+fittestIndividual.getFitness());
         System.out.print("Genes: ");
-        for (int i = 0; i < 5; i++) {
-            System.out.print(demo.population.selectFittest().getGenes()[i]);
+        for (int i = 0; i < 16; i++) {
+            System.out.print(fittestIndividual.getGenes()[i]);
         }
 
         System.out.println("");
@@ -81,25 +87,31 @@ public class SimpleDemoGA {
     //Selection
     private void selection() {
         double totalFitness = 0;
+        double min = population.getLeastFittestIndividual().getFitness();
+        double max = population.getFittestIndividual().getFitness();
         for (int i = 0; i < numberOfIndividuals; i++) {
-            totalFitness += population.getIndividual(i).getFitness();
+            double x = population.getIndividual(i).getFitness();
+            double normalizedFitness = ((x - min) / (max - min)) * (100 - 0) + 0;
+            totalFitness += normalizedFitness;
+            population.getIndividual(i).setNormalizedFitness(normalizedFitness);
         }
 
         for (int i = 0; i < numberOfIndividuals; i++) {
-            double selectionProbability = population.getIndividual(i).getFitness() / totalFitness;
+            double selectionProbability = population.getIndividual(i).getNormalizedFitness() / totalFitness;
             population.getIndividual(i).setSelectionProbability(selectionProbability);
         }
 
-        Individual[] newIndividuals = new Individual[numberOfIndividuals];
+        List<Individual> newIndividuals = new ArrayList<>();
 
         for (int i = 0; i < numberOfIndividuals; i++) {
             double temporarySum = 0;
+            Random rn = new Random();
+            double chance = rn.nextDouble();
             for (int j = 0; j < numberOfIndividuals; j++) {
                 temporarySum += population.getIndividual(j).getSelectionProbability();
-                Random rn = new Random();
-                double chance = rn.nextDouble();
                 if (chance <= temporarySum) {
-                    newIndividuals[i] = population.getIndividual(j);
+                    newIndividuals.add(population.getIndividual(j));
+                    j+=numberOfIndividuals;
                 }
             }
         }
@@ -108,12 +120,18 @@ public class SimpleDemoGA {
 
     private void parentSelection() {
         Random rn = new Random();
-        List<Individual> individuals = Arrays.asList(population.getIndividuals());
+        List<Individual> individuals = population.getIndividuals();
         List<Individual> newIndividuals = new ArrayList<>();
         int i = 0;
         while (individuals.size() > 0) {
             Individual individual1 = individuals.get(i);
-            int index = rn.nextInt(individuals.size() - 2) + 1;
+            int index;
+            if(individuals.size() == 2) {
+                index = 1;
+            }
+            else {
+                index = rn.nextInt(individuals.size() - 2) + 1;
+            }
             Individual individual2 = individuals.get(index);
             List<Individual> children = crossover(individual1, individual2);
             newIndividuals.addAll(children);
@@ -126,7 +144,7 @@ public class SimpleDemoGA {
                 newIndividuals.add(lastIndividual);
             }
         }
-        population.setIndividuals((Individual[]) newIndividuals.toArray());
+        population.setIndividuals(newIndividuals);
     }
 
     //Crossover
@@ -146,39 +164,28 @@ public class SimpleDemoGA {
     }
 
     //Mutation
-    private void mutation() {
+    private void mutation(Individual individual) {
         Random rn = new Random();
 
         //Select a random mutation point
         int mutationPoint = rn.nextInt(this.numberOfGenes);
 
         //Flip values at the mutation point
-        if (fittest.getGenes()[mutationPoint] == 0) {
-            fittest.getGenes()[mutationPoint] = 1;
+        if (individual.getGenes()[mutationPoint] == 0) {
+            individual.getGenes()[mutationPoint] = 1;
         } else {
-            fittest.getGenes()[mutationPoint] = 0;
+            individual.getGenes()[mutationPoint] = 0;
         }
 
-        mutationPoint = rn.nextInt(numberOfGenes);
-
-        if (secondFittest.getGenes()[mutationPoint] == 0) {
-            secondFittest.getGenes()[mutationPoint] = 1;
-        } else {
-            secondFittest.getGenes()[mutationPoint] = 0;
-        }
     }
-
-
-
 
     public void printIndividuals() {
         for (int i = 0; i < numberOfIndividuals; i++) {
             System.out.print("Individual " + i + ":" );
-            for (int j = 0; j < 5; j++) {
-                System.out.print(population.getIndividuals()[i].getGenes()[j]);
+            for (int j = 0; j < 16; j++) {
+                System.out.print(population.getIndividual(i).getGenes()[j]);
             }
             System.out.println();
         }
     }
-
 }
