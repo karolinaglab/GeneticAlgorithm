@@ -4,7 +4,7 @@ import static java.lang.Integer.parseInt;
 
 //Individual class
 class Individual {
-
+    private final double TRANSLATION = 50.0;
     private double fitness;
     private int[] genes;
     private int geneLength;
@@ -26,26 +26,27 @@ class Individual {
 
     //Calculate fitness
     public void calcFitness() {
+        int dividePoint = 7;
         StringBuilder integerNumberBuilder = new StringBuilder();
         StringBuilder fractionalNumberBuilder = new StringBuilder();
         int plus = genes[0] == 0 ? -1 : 1;
-        for (int i = 1; i < geneLength / 2; i++) {
+        for (int i = 1; i < dividePoint; i++) {
             integerNumberBuilder.append(genes[i]);
         }
-        for (int i = geneLength / 2; i < geneLength; i++) {
+        for (int i = dividePoint; i < geneLength; i++) {
             fractionalNumberBuilder.append(genes[i]);
         }
         String integerNumber = integerNumberBuilder.toString();
         String fractionalNumber = fractionalNumberBuilder.toString();
-        double decimal = parseInt(integerNumber, 2);
+        double decimal = parseInt(integerNumber, 2) + TRANSLATION;
         int fractal = parseInt(fractionalNumber, 2);
         decimal += (double) fractal / 100.0;
         decimal *= plus;
-        fitness = fitFunction(decimal);
+        this.fitness = fitFunction(decimal);
     }
 
     private double fitFunction(double decimal) {
-        return (-0.3) * Math.pow(decimal, 4) + 36 * Math.pow(decimal, 3) - 30 * Math.pow(decimal, 2) - 45 * decimal - 1320;
+        return -0.2 * Math.pow(decimal, 2) + 25 * decimal + 200;
     }
 
     public int[] getGenes() {

@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //Population class
 class Population {
@@ -28,15 +29,23 @@ class Population {
     }
 
     public Individual getFittestIndividual() {
-        Optional<Individual> max = individuals.stream()
-                .max(Comparator.comparingDouble(Individual::getFitness));
-        return max.orElse(null);
+        Individual max = individuals.get(0);
+        for (Individual individual : individuals) {
+            if (individual.getFitness() > max.getFitness()) {
+                max = individual;
+            }
+        }
+        return max;
     }
 
     public Individual getLeastFittestIndividual() {
-        Optional<Individual> min = individuals.stream()
-                .min(Comparator.comparingDouble(Individual::getFitness));
-        return min.orElse(null);
+        Individual min = individuals.get(0);
+        for (Individual individual : individuals) {
+            if (individual.getFitness() < min.getFitness()) {
+                min = individual;
+            }
+        }
+        return min;
     }
 
     public int getPopulationSize() {
