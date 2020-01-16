@@ -83,4 +83,9 @@ class Population {
     public Individual getIndividual(int index) {
         return individuals.get(index);
     }
+
+    public void setIndividual(int index, Individual individual) {
+        individuals.set(index, individual);
+    }
+
 }

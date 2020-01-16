@@ -4,12 +4,11 @@ import static java.lang.Integer.parseInt;
 
 //Individual class
 class Individual {
-    private final double TRANSLATION = 50.0;
     private double fitness;
     private int[] genes;
     private int geneLength;
     private double selectionProbability;
-    private double normalizedFitness;
+    private double fenotype;
 
     public Individual(int geneLength) {
 
@@ -26,7 +25,7 @@ class Individual {
 
     //Calculate fitness
     public void calcFitness() {
-        int dividePoint = 7;
+        int dividePoint = 6;
         StringBuilder integerNumberBuilder = new StringBuilder();
         StringBuilder fractionalNumberBuilder = new StringBuilder();
         int plus = genes[0] == 0 ? -1 : 1;
@@ -38,15 +37,16 @@ class Individual {
         }
         String integerNumber = integerNumberBuilder.toString();
         String fractionalNumber = fractionalNumberBuilder.toString();
-        double decimal = parseInt(integerNumber, 2) + TRANSLATION;
+        double decimal = parseInt(integerNumber, 2);
         int fractal = parseInt(fractionalNumber, 2);
         decimal += (double) fractal / 100.0;
         decimal *= plus;
+        this.fenotype = decimal;
         this.fitness = fitFunction(decimal);
     }
 
     private double fitFunction(double decimal) {
-        return -0.2 * Math.pow(decimal, 2) + 25 * decimal + 200;
+        return -0.2 * Math.pow(decimal, 2) + 13 * decimal + 630;
     }
 
     public int[] getGenes() {
@@ -73,6 +73,9 @@ class Individual {
         this.selectionProbability = selectionProbability;
     }
 
+    public double getFenotype() {
+        return fenotype;
+    }
 
     public double getFitness() {
         return fitness;
@@ -80,13 +83,5 @@ class Individual {
 
     public void setFitness(double fitness) {
         this.fitness = fitness;
-    }
-
-    public double getNormalizedFitness() {
-        return normalizedFitness;
-    }
-
-    public void setNormalizedFitness(double normalizedFitness) {
-        this.normalizedFitness = normalizedFitness;
     }
 }
